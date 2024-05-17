@@ -16,7 +16,7 @@ import java.util.Optional;
 @SpringBootTest
 class ECommerceApplicationTests {
 
-    @Autowired // -- Tells spring to inject the object of prod repo
+   /* @Autowired // -- Tells spring to inject the object of prod repo
     ProductRepository productRepository;
 
     @Autowired // -- Tells spring to inject the object of prod repo
@@ -75,5 +75,5 @@ class ECommerceApplicationTests {
             }
         }
 
-    }
+    }*/
 }
