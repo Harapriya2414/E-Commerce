@@ -5,24 +5,40 @@ import hpecomm.ecommerce.DTO.ErrorDto;
 import hpecomm.ecommerce.DTO.FakeStoreProductDto;
 import hpecomm.ecommerce.Models.Product;
 import hpecomm.ecommerce.Services.ProductService;
+import hpecomm.ecommerce.advices.NotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @RestController
+@RequestMapping("/products")
 public class ProductController {
 
     private ProductService productService;
 
-    public ProductController(@Qualifier("selfProductService") ProductService productService) {
+    public ProductController(@Qualifier("fakeStoreProductService") ProductService productService) {
         this.productService = productService;
     }
 
-    @PostMapping("/products")
-    public Product createProduct(@RequestBody CreateProductRequestDto productRequestDto) {
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable("id") Long id) throws NotFoundException {
+        return new ResponseEntity<>(productService.getProductById(id), HttpStatus.OK);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<Product>> getAllProduct() throws NotFoundException {
+        return new ResponseEntity<>(productService.getAllProduct(), HttpStatus.OK);
+    }
+
+    @PostMapping()
+    public Product createProduct(@RequestBody CreateProductRequestDto productRequestDto){
         return productService.createProduct(
                 productRequestDto.getTitle(),
                 productRequestDto.getDescription(),
@@ -32,32 +48,27 @@ public class ProductController {
         );
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> responseData = productService.getAllProducts();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Product> deleteProduct(@PathVariable("id") Long id) throws NotFoundException {
 
-        ResponseEntity<List<Product>> responseEntity =
-                new ResponseEntity<>(responseData, HttpStatusCode.valueOf(202));
-
-        return responseEntity;
+        return new ResponseEntity<>(productService.deleteProduct(id), HttpStatus.NO_CONTENT);
     }
 
 
-    @GetMapping("/products/{id}")
-    public Product getProductById(@PathVariable("id") Long id) {
-         Product product= productService.getSingleProduct(id);
-        return product;
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody CreateProductRequestDto productRequestDto) throws NotFoundException {
+        return new ResponseEntity<>(productService.updateProduct(id,
+                productRequestDto.getTitle(),
+                productRequestDto.getDescription(),
+                productRequestDto.getImage(),
+                productRequestDto.getCategory(),
+                productRequestDto.getPrice()),HttpStatus.OK);
     }
 
-
-    /*
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ErrorDto> handleNullPointerException() {
-        ErrorDto errorDto = new ErrorDto();
-        errorDto.setMessage("Something went wrong. Please try again");
-        return new ResponseEntity<>(errorDto,
-                        HttpStatusCode.valueOf(404));
+    @GetMapping("/categories/{title}")
+    public ResponseEntity<List<Product>> getAllProductByCategory(@PathVariable("title") String title) throws NotFoundException {
+        return new ResponseEntity<>(productService.getAllProductByCategory(title),
+                HttpStatus.OK);
     }
 
- */
 }
