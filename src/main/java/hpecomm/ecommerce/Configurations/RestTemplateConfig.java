@@ -7,7 +7,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
-
 @Configuration
 public class RestTemplateConfig {
     @Bean
